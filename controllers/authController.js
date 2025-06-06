@@ -37,13 +37,17 @@
 // };
 
 
-import User from '../models/User.js';
+
 import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+
 
 const generateToken = (user) => {
-  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-    expiresIn: '7d',
-  });
+  return jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET, // This must not be undefined
+    { expiresIn: '1d' }
+  );
 };
 
 export const registerUser = async (req, res) => {
@@ -79,4 +83,9 @@ export const loginUser = async (req, res) => {
     res.status(401).json({ message: 'Invalid credentials' });
   }
 };
+
+
+
+
+
 
