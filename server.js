@@ -7,6 +7,7 @@ import bottleRoutes from './routes/bottleRoutes.js';
 import mongoose from 'mongoose';
 import cors from 'cors'; // ✅ Corrected
  import pickupRoutes from './routes/pickupRoutes.js';
+ import adminRoutes from './routes/adminRoutes.js';
 
 
 
@@ -19,6 +20,8 @@ connectDB();
 // app.use('/api', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+
+app.use('/api/admin', adminRoutes);
 
 
 // ✅ CORS setup
