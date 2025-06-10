@@ -1,20 +1,26 @@
-// import express from 'express';
-// import {
-//   requestPickup,
-//   assignPickup,
-//   getAllPickupRequests,
-// } from '../controllers/pickupController.js';
-// import { protect, admin } from '../middleware/authMiddleware.js';
+import express from 'express';
+import {
+  requestPickup,
+  assignPickup,
+  getAllPickupRequests,
+} from '../controllers/pickupController.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
+import * as pickupController from '../controllers/pickupController.js';
 
-// const router = express.Router();
 
-// // User requests pickup
-// router.post('/request', protect, requestPickup);
 
-// // Admin assigns pickup
-// router.put('/assign/:requestId', protect, admin, assignPickup);
 
-// // View all pickup requests (user/admin filtered in controller)
-// router.get('/requests', protect, getAllPickupRequests);
+const router = express.Router();
 
-// export default router;
+// User requests pickup
+router.post('/request', requestPickup);
+
+// Admin assigns pickup request
+router.put('/assign/:requestId', assignPickup); // ✅ Correct handler
+
+
+// View all pickup requests (user/admin filtered in controller)
+router.get('/requests', getAllPickupRequests);
+
+
+export default router;

@@ -1,6 +1,8 @@
 import express from 'express';
 import  {submitBottle ,getAllBottles ,editBottle , deleteBottle} from '../controllers/bottleController.js';
-import protect from '../middleware/authMiddleware.js';
+//import protect from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js';
+
 
 const router = express.Router();
 

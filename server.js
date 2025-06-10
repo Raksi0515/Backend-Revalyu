@@ -6,7 +6,7 @@ import userRoutes from './routes/authRoutes.js';
 import bottleRoutes from './routes/bottleRoutes.js';
 import mongoose from 'mongoose';
 import cors from 'cors'; // ✅ Corrected
-// import pickupRoutes from './routes/pickupRoutes.js';
+ import pickupRoutes from './routes/pickupRoutes.js';
 
 
 
@@ -47,7 +47,7 @@ app.use('/api', authRoutes);
 
 // Bottle management routes
 app.use('/api/bottles', bottleRoutes);
-// app.use('/api/pickup', pickupRoutes);
+app.use('/api/pickup', pickupRoutes);
 
 
 // const PORT = process.env.PORT || 5000;
