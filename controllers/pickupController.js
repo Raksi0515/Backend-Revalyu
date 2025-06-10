@@ -58,3 +58,30 @@ export const getAllPickupRequests = asyncHandler(async (req, res) => {
 
   res.json(requests);
 });
+
+
+// Pickup complete & add points
+export const markPickupComplete = asyncHandler(async (req, res) => {
+  const request = await PickupRequest.findById(req.params.requestId);
+
+  if (!request) {
+    res.status(404);
+    throw new Error('Pickup request not found');
+  }
+
+  // Update pickup status
+  request.status = 'Completed';
+  await request.save();
+
+  // Add points to user
+  const user = await User.findById(request.user);
+
+  if (user) {
+    const pointsPerBottle = 10; // Customize points per bottle here
+    user.points += request.bottleCount * pointsPerBottle;
+    await user.save();
+  }
+
+  res.json({ message: 'Pickup marked completed and points updated' });
+});
+

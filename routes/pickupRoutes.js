@@ -3,8 +3,11 @@ import {
   requestPickup,
   assignPickup,
   getAllPickupRequests,
+  markPickupComplete,
 } from '../controllers/pickupController.js';
-import { protect, adminOnly } from '../middleware/authMiddleware.js';
+// import { protect, adminOnly } from '../middleware/authMiddleware.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
+
 import * as pickupController from '../controllers/pickupController.js';
 
 
@@ -21,6 +24,11 @@ router.put('/assign/:requestId', assignPickup); // ✅ Correct handler
 
 // View all pickup requests (user/admin filtered in controller)
 router.get('/requests', getAllPickupRequests);
+
+
+// Admin marks pickup as completed
+router.put('/complete/:requestId', protect, admin, markPickupComplete);
+
 
 
 export default router;

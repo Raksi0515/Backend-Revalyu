@@ -20,7 +20,7 @@ export const protect = (req, res, next) => {
 };
 
 // Admin-only middleware to check if user is admin
-export const adminOnly = (req, res, next) => {
+export const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {
