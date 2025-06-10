@@ -5,7 +5,6 @@ import {
   getAllPickupRequests,
   markPickupComplete,
 } from '../controllers/pickupController.js';
-// import { protect, adminOnly } from '../middleware/authMiddleware.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
 import * as pickupController from '../controllers/pickupController.js';

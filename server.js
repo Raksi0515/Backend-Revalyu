@@ -10,13 +10,16 @@ import cors from 'cors'; // ✅ Corrected
 
 
 
+
 dotenv.config();
 const app = express();
 
 app.use(express.json());
 connectDB();
-app.use('/api', userRoutes);
+// app.use('/api', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+
 
 // ✅ CORS setup
 app.use(cors({

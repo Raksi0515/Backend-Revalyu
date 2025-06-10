@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import PickupRequest from '../models/PickupRequest.js';
 import User from '../models/User.js';
+import { addUserPoints } from './userController.js';
 
 /**
  * @desc    User requests a pickup
@@ -68,8 +69,7 @@ export const markPickupComplete = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Pickup request not found');
   }
-
-  // Update pickup status
+// Update pickup status
   request.status = 'Completed';
   await request.save();
 
