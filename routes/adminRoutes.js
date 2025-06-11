@@ -1,9 +1,9 @@
-import express from 'express';
-import { getAdminDashboard } from '../controllers/adminController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+// import express from 'express';
+// import { getAdminDashboard } from '../controllers/adminController.js';
+// import { protect, admin } from '../middleware/authMiddleware.js';
 
-const router = express.Router();
+// const router = express.Router();
 
-router.get('/dashboard', protect, admin, getAdminDashboard);
+// router.get('/dashboard', protect, admin, getAdminDashboard);
 
-export default router;
+// export default router;

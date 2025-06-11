@@ -6,8 +6,8 @@ import userRoutes from './routes/authRoutes.js';
 import bottleRoutes from './routes/bottleRoutes.js';
 import mongoose from 'mongoose';
 import cors from 'cors'; // ✅ Corrected
- import pickupRoutes from './routes/pickupRoutes.js';
- import adminRoutes from './routes/adminRoutes.js';
+//  import pickupRoutes from './routes/pickupRoutes.js';
+//  import adminRoutes from './routes/adminRoutes.js';
 
 
 
@@ -21,14 +21,14 @@ connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
-app.use('/api/admin', adminRoutes);
+// app.use('/api/admin', adminRoutes);
 
 
 // ✅ CORS setup
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: 'http://localhost:5173',
+//   credentials: true,
+// }));
 
 
 // ✅ MongoDB Connect and Start Server
@@ -53,7 +53,14 @@ app.use('/api', authRoutes);
 
 // Bottle management routes
 app.use('/api/bottles', bottleRoutes);
-app.use('/api/pickup', pickupRoutes);
+// app.use('/api/pickup', pickupRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route Not Found' });
+});
+
+
+
 
 
 // const PORT = process.env.PORT || 5000;
