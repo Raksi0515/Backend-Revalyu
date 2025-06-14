@@ -63,3 +63,27 @@ export const deleteUser = asyncHandler(async (req, res) => {
   await user.deleteone();
   res.json({ message: 'User deleted' });
 });
+
+
+// @desc Get user profile with money earned
+// @route GET /api/users/profile
+// @access Private
+export const getUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select('-password');
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  const moneyEarned = user.totalPoints / 10;
+
+  res.json({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    totalPoints: user.totalPoints,
+    moneyEarned: moneyEarned.toFixed(2)
+  });
+});
