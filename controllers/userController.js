@@ -60,6 +60,6 @@ export const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) throw new Error('User not found');
 
-  await user.remove();
+  await user.deleteone();
   res.json({ message: 'User deleted' });
 });

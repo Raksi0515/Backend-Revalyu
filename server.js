@@ -6,6 +6,7 @@ import userRoutes from './routes/userRoutes.js';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import donationRoutes from './routes/donationRoutes.js';
+import saleRoutes from './routes/saleRoutes.js';
 
 
 
@@ -24,6 +25,8 @@ app.use(cors());
 app.use('/api/users', userRoutes);
 
 app.use('/api/donations', donationRoutes);
+
+app.use('/api/sales', saleRoutes);
 
 
 // MongoDB connect and Start Server
