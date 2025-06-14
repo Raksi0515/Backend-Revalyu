@@ -1,43 +1,28 @@
  
+// models/User.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, default: 'user' },
-  points: {type: Number,default: 0,},// or 'admin'
+  name: String,
+  email: { type: String, unique: true },
+  password: String,
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  totalPoints: { type: Number, default: 0 }
 });
 
-// Password hash before saving
+// Encrypt password before save
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-// Password check method
-userSchema.methods.matchPassword = function (enteredPassword) {
-  return bcrypt.compare(enteredPassword, this.password);
+// Check password
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
 const User = mongoose.model('User', userSchema);
-
 export default User;
-
-
-// import mongoose from 'mongoose';
-
-// const userSchema = new mongoose.Schema({
-//   name: { type: String, required: true },
-//   email: { type: String, required: true, unique: true },
-//   role: { type: String, enum: ['user', 'admin'], default: 'user' },
-//   password: { type: String, required: true }
-// }, { timestamps: true });
-
-// const User = mongoose.model('User', userSchema);
-// export default User;
-
-
-
