@@ -8,7 +8,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
-  totalPoints: { type: Number, default: 0 }
+  contactNumber: String,
+  address: String,
+  totalPoints: { type: Number, default: 0 },
+
 });
 
 // Encrypt password before save
@@ -26,3 +29,34 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 
 const User = mongoose.model('User', userSchema);
 export default User;
+
+
+// // models/User.js
+// import mongoose from 'mongoose';
+// import bcrypt from 'bcryptjs';
+
+// const userSchema = new mongoose.Schema({
+//   name: String,
+//   email: { type: String, unique: true },
+//   password: String,
+//   role: { type: String, enum: ['user', 'admin'], default: 'user' },
+//   contactNumber: String,
+//   address: String,
+//   totalPoints: { type: Number, default: 0 },
+// });
+
+// // ✅ Hash password before save
+// userSchema.pre('save', async function (next) {
+//   if (!this.isModified('password')) return next();
+//   const salt = await bcrypt.genSalt(10);
+//   this.password = await bcrypt.hash(this.password, salt);
+//   next();
+// });
+
+// // ✅ Password comparison
+// userSchema.methods.matchPassword = async function (enteredPassword) {
+//   return await bcrypt.compare(enteredPassword, this.password);
+// };
+
+// const User = mongoose.model('User', userSchema);
+// export default User;
