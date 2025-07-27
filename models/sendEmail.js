@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const sendEmail = async ({ to, subject, text, html }) => {
+  if (!to) {
+    throw new Error('No recipient email provided to sendEmail');
+  }
+
   // Create transporter
   const transporter = nodemailer.createTransport({
     service: 'gmail', // or use 'smtp.ethereal.email' for testing
@@ -21,8 +25,14 @@ const sendEmail = async ({ to, subject, text, html }) => {
     html, // Optional
   };
 
-  // Send mail
-  await transporter.sendMail(mailOptions);
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+    return info;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
+  }
 };
 
 export default sendEmail;

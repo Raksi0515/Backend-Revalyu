@@ -52,78 +52,133 @@ import User from '../models/User.js';
 import sendEmail from '../models/sendEmail.js'; // ✅ Correct path
 
 
-export const submitDonation = asyncHandler(async (req, res) => {
-  const { quantity, pickupAddress, contactNumber, donationMethod, email } = req.body;
-  const user = req.user;
+// export const submitDonation = asyncHandler(async (req, res) => {
+//   const { quantity, pickupAddress, contactNumber, donationMethod, email } = req.body;
+//   const user = req.user;
     
-  console.log('Received email:', email)
+//   console.log('Received email:', email)
 
+//   if (!contactNumber) {
+//     return res.status(400).json({ message: 'Contact number is required' });
+//   }
+
+//   // Daily donation limit check
+//   const start = new Date();
+//   start.setHours(0, 0, 0, 0);
+//   const end = new Date();
+//   end.setHours(23, 59, 59, 999);
+
+//   const todayDonations = await Donation.aggregate([
+//     {
+//       $match: {
+//         user: user._id,
+//         createdAt: { $gte: start, $lte: end }
+//       }
+//     },
+//     {
+//       $group: {
+//         _id: null,
+//         totalQuantity: { $sum: "$quantity" }
+//       }
+//     }
+//   ]);
+
+//   const donatedToday = todayDonations.length > 0 ? todayDonations[0].totalQuantity : 0;
+//   const totalIfSubmitted = donatedToday + quantity;
+
+//   if (totalIfSubmitted > 20) {
+//     return res.status(400).json({
+//       message: `Daily limit exceeded. Already donated ${donatedToday} bottles today.`
+//     });
+//   }
+
+
+//   // Create donation with contactNumber included
+//   const donation = await Donation.create({
+//     user: user._id,
+//     quantity,
+//     pickupAddress,
+//     contactNumber,           // <--- add contactNumber here
+//     pointsEarned: 0,
+//     donationMethod: donationMethod || 'manual',
+//     verificationStatus: 'pending',
+//     email,
+//   });
+
+//   try {
+//     await sendEmail({
+//       to: email, // email received from frontend form
+//       subject: '🎉 Thank you for your bottle donation!',
+//       text: `Dear ${user.name},\n\nThank you for donating ${quantity} bottles. Our team will reach out for pickup at:\n${pickupAddress}.\n\n- Revalyu Team`,
+//       html: `<p>Dear ${user.name},</p>
+//              <p>Thank you for donating <strong>${quantity}</strong> bottles.</p>
+//              <p>We will reach out for pickup at:<br/>${pickupAddress}</p>
+//              <p>Best regards,<br/>Revalyu Team</p>`
+//     });
+//   } catch (error) {
+//     console.error('Email send failed:', error.message);
+//   }
+
+//   res.status(201).json({
+//     message: 'Donation submitted. Confirmation email sent.',
+//     donation
+//   });
+// });
+
+export const submitDonation = asyncHandler(async (req, res) => {
+  const {
+    quantity,
+    pickupAddress,
+    contactNumber,
+    donationMethod,
+    email,
+  } = req.body;
+
+  const user = req.user;
+
+  /* ---------- validations ---------- */
   if (!contactNumber) {
     return res.status(400).json({ message: 'Contact number is required' });
   }
-
-  // Daily donation limit check
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
-
-  const todayDonations = await Donation.aggregate([
-    {
-      $match: {
-        user: user._id,
-        createdAt: { $gte: start, $lte: end }
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        totalQuantity: { $sum: "$quantity" }
-      }
-    }
-  ]);
-
-  const donatedToday = todayDonations.length > 0 ? todayDonations[0].totalQuantity : 0;
-  const totalIfSubmitted = donatedToday + quantity;
-
-  if (totalIfSubmitted > 20) {
-    return res.status(400).json({
-      message: `Daily limit exceeded. Already donated ${donatedToday} bottles today.`
-    });
+  if (!quantity || quantity <= 0) {
+    return res.status(400).json({ message: 'Quantity must be a positive number' });
   }
 
-  // Create donation with contactNumber included
+  /* ---------- ✅ no daily‑limit check ---------- */
+
   const donation = await Donation.create({
     user: user._id,
     quantity,
     pickupAddress,
-    contactNumber,           // <--- add contactNumber here
+    contactNumber,
     pointsEarned: 0,
     donationMethod: donationMethod || 'manual',
     verificationStatus: 'pending',
     email,
   });
 
+  /* ---------- email notification ---------- */
   try {
     await sendEmail({
-      to: email, // email received from frontend form
-      subject: '🎉 Thank you for your bottle donation!',
-      text: `Dear ${user.name},\n\nThank you for donating ${quantity} bottles. Our team will reach out for pickup at:\n${pickupAddress}.\n\n- Revalyu Team`,
-      html: `<p>Dear ${user.name},</p>
-             <p>Thank you for donating <strong>${quantity}</strong> bottles.</p>
-             <p>We will reach out for pickup at:<br/>${pickupAddress}</p>
-             <p>Best regards,<br/>Revalyu Team</p>`
+      to:      email,
+      subject: ' Thank you for your bottle donation!',
+      text:    `Dear ${user.name},\n\nThank you for donating ${quantity} bottles. Our team will reach out for pickup at:\n${pickupAddress}.\n\n- Revalyu Team`,
+      html:    `<p>Dear ${user.name},</p>
+                <p>Thank you for donating <strong>${quantity}</strong> bottles.</p>
+                <p>We will reach out for pickup at:<br/>${pickupAddress}</p>
+                <p>Best regards,<br/>Revalyu Team</p>`,
     });
-  } catch (error) {
-    console.error('Email send failed:', error.message);
+  } catch (err) {
+    console.error('Email send failed:', err.message);
+    // continue anyway – donation already saved
   }
 
-  res.status(201).json({
+  return res.status(201).json({
+    success: true,
     message: 'Donation submitted. Confirmation email sent.',
-    donation
+    donation,
   });
 });
-
 
 
 // @desc Get donations of logged-in user

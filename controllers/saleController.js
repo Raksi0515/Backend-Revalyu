@@ -150,13 +150,12 @@ export const createSale = asyncHandler(async (req, res) => {
       await sendEmail({
         to: adminEmail,
         subject: 'REVALYU New Bottle Sale Recorded',
-        text: `📦 Thank you for choosing REVALYU, a new sale has been recorded:\n
+        text: ` Thank you for choosing REVALYU, a new sale has been recorded:\n
 Company Name: ${companyName}
 Bottles Count (This Sale): ${quantitySold}
-Total Amount: Rs. ${amountReceived}
 Date: ${new Date().toLocaleDateString()}
 
-✅ Total Bottles Picked So Far: ${totalPickedBottles}
+ Total Bottles Picked So Far: ${totalPickedBottles}
 
 If you need any further information, please contact us - 0771234567`,
       });

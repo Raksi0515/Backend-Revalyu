@@ -8,6 +8,7 @@ import userRoutes from './routes/userRoutes.js';
 import donationRoutes from './routes/donationRoutes.js';
 import saleRoutes from './routes/saleRoutes.js';
 import redeemRoutes from './routes/redeemRoutes.js';
+// import paymentRoutes from './routes/paymentRoutes.js';
 // import bottleSupplyRoutes from './routes/bottleSupplyRoutes.js';
 // const bottleSupplyRoutes = require('./routes/bottleSupplyRoutes');
 // import bottleSupplyRoutes from './routes/bottleSupplyRoutes.js'; // ✅
@@ -33,6 +34,9 @@ app.use('/api/donations', donationRoutes);
 app.use('/api/sales', saleRoutes);
 // app.use('/api/payments', paymentRoutes);
 app.use('/api/redeems', redeemRoutes);
+// app.use('/api/payments', paymentRoutes);
+app.use('/uploads', express.static('uploads'));
+
 
 
 

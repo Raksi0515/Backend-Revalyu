@@ -2,7 +2,8 @@
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import Redeem from '../models/Redeem.js'; 
+import Redeem from '../models/Redeem.js';
+import sendEmail from '../models/sendEmail.js'; //  Email helper 
 
 const generateToken = (id) => jwt.sign({ id }, 'secretkey', { expiresIn: '7d' });
 
@@ -61,10 +62,9 @@ export const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) throw new Error('User not found');
 
-await user.deleteOne();
+  await user.deleteOne();
   res.json({ message: 'User deleted' });
 });
-
 
 // @desc Get user profile with money earned
 // @route GET /api/users/profile
@@ -87,11 +87,11 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     totalPoints: user.totalPoints,
     moneyEarned: moneyEarned.toFixed(2)
   });
-
 });
 
-
-
+// @desc User Redeem Points
+// @route POST /api/users/redeem
+// @access Private
 export const redeemPoints = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -109,28 +109,40 @@ export const redeemPoints = async (req, res) => {
 
     const redeemAmount = user.totalPoints * 1; // 1 point = 1 LKR
 
-    // Redeem history சேர்க்கும் code
+    // Add to redeem history
     await Redeem.create({
       user: user._id,
       pointsRedeemed: user.totalPoints,
       amountGiven: redeemAmount,
     });
 
-    // Redeem ஆனபின் point reset பண்ணுங்க
+    // Reset user points
     user.totalPoints = 0;
-
-    // Redeem amount user.moneyEarned-க்கு சேர்க்கலாம் (அல்லது பணம் userக்கு கிடைத்துவிட்டதாக track பண்ண)
     user.moneyEarned = user.moneyEarned ? user.moneyEarned + redeemAmount : redeemAmount;
 
     await user.save();
 
+    // ✅ Send email to user after redeem
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: ' Points Redeemed Successfully!',
+        text: `Hi ${user.name},\n\nYou have successfully redeemed  Thank you for recycling!`,
+        html: `<p>Hi ${user.name},</p><p>You have successfully redeemed </p><p>Thank you for recycling with Revalyu </p>`
+      });
+    } catch (emailErr) {
+      console.error(' Email sending failed:', emailErr.message);
+      // Don't block redeem process if email fails
+    }
+
     res.status(200).json({
       success: true,
-      message: `Successfully redeemed ${redeemAmount.toLocaleString('en-LK', { style: 'currency', currency: 'LKR' })}`,
+      message: `Successfully redeemed `,
       amount: redeemAmount,
       totalPoints: user.totalPoints,
       moneyEarned: user.moneyEarned,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -140,26 +152,39 @@ export const redeemPoints = async (req, res) => {
   }
 };
 
-// export const updateUserProfile = async (req, res) => {
-//   const user = await User.findById(req.user._id);
+// Get logged-in user's profile
+export const getMyProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select('-password');
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  res.json(user);
+});
 
-//   if (user) {
-//     user.name = req.body.name || user.name;
-//     user.email = req.body.email || user.email;
+// controllers/userController.js
 
-//     if (req.file) {
-//       user.profilePhoto = req.file.filename; // store filename only
-//     }
+export const updateUserProfile = asyncHandler(async (req, res) => {
+  const userId = req.user._id;  // ✅ Correct way to get the logged-in user
 
-//     const updatedUser = await user.save();
-//     res.status(200).json({
-//       _id: updatedUser._id,
-//       name: updatedUser.name,
-//       email: updatedUser.email,
-//       profilePhoto: updatedUser.profilePhoto,
-//     });
-//   } else {
-//     res.status(404).json({ message: 'User not found' });
-//   }
-// };
+  const { name, email } = req.body;
 
+  const updateData = {};
+  if (name) updateData.name = name;
+  if (email) updateData.email = email;
+
+  if (req.file) {
+    updateData.avatar = req.file.path; // ✅ If using multer+cloudinary
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+    new: true,
+  });
+
+  if (!updatedUser) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  res.json(updatedUser);
+});
